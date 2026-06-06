@@ -1,4 +1,5 @@
 
+# Local Development Only - SSoC26
 
 services:
   # MindMitra Backend API
@@ -10,7 +11,7 @@ services:
       - MONGODB_URL=mongodb://mongodb:27017
       - DATABASE_NAME=mindmitra
       - REDIS_URL=redis://redis:6379
-      - DEBUG=true
+      - DEBUG=false
     depends_on:
       - mongodb
       - redis
@@ -33,6 +34,11 @@ services:
     restart: unless-stopped
     networks:
       - mindmitra-network
+      healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Redis for caching and background tasks
   redis:
@@ -44,6 +50,11 @@ services:
     restart: unless-stopped
     networks:
       - mindmitra-network
+      healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Celery Worker for background tasks
   celery-worker:
